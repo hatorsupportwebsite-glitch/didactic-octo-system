@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Merixti Aimbot</title>
+<style>
+  :root{
+    --bg: #0a0d0f;
+    --panel: #10151a;
+    --panel2: #141b21;
+    --border: #1f2b33;
+    --accent: #39ff88;
+    --accent-dim: #1c8a4d;
+    --accent2: #ff3b3b;
+    --text: #d9f5e6;
+    --text-dim: #6c8a80;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;
+    width:100%;height:100%;
+    background: radial-gradient(circle at 50% 0%, #0e1418 0%, #060809 70%);
+    color: var(--text);
+    font-family: 'Consolas','Courier New', monospace;
+    overflow-x:hidden;
+  }
+  .app{
+    max-width: 980px;
+    margin: 18px auto 40px;
+    background: linear-gradient(180deg, var(--panel), #0b0f12);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 0 40px rgba(57,255,136,0.06), 0 20px 60px rgba(0,0,0,0.6);
+    overflow:hidden;
+  }
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 16px 22px;
+    background: linear-gradient(90deg, #0c1113, #0f1518 60%, #0c1113);
+    border-bottom: 1px solid var(--border);
+  }
+  header .title{
+    font-size: 22px;
+    font-weight:700;
+    letter-spacing:2px;
+    color: var(--accent);
+    text-shadow: 0 0 14px rgba(57,255,136,0.5);
+  }
+  header .title span{
+    color: var(--text-dim);
+    font-size:13px;
+    font-weight:400;
+    margin-left:10px;
+    letter-spacing:1px;
+  }
+  header .stats{
+    display:flex;
+    gap:18px;
+    font-size:12px;
+    color: var(--text-dim);
+  }
+  header .stats b{color:var(--accent);}
+  .status-dot{
+    display:inline-block;width:7px;height:7px;border-radius:50%;
+    background:var(--accent);margin-right:6px;
+    box-shadow:0 0 8px var(--accent);
+    animation:blink 1.4s infinite;
+  }
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+  .main{
+    display:flex;
+    min-height: 520px;
+  }
+  .sidebar{
+    width: 260px;
+    background: #0b1013;
+    border-right:1px solid var(--border);
+    padding: 18px 16px;
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+  }
+  .section-label{
+    font-size:11px;
+    letter-spacing:2px;
+    color: var(--text-dim);
+    text-transform:uppercase;
+    margin-bottom:10px;
+    border-bottom:1px solid var(--border);
+    padding-bottom:6px;
+  }
+  .hitbox-btns{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .hitbox-btn{
+    background: var(--panel2);
+    border:1px solid var(--border);
+    color: var(--text);
+    padding:10px 12px;
+    font-family:inherit;
+    font-size:13px;
+    letter-spacing:1px;
+    border-radius:6px;
+    cursor:pointer;
+    text-align:left;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    transition: all .15s ease;
+  }
+  .hitbox-btn:hover{
+    border-color: var(--accent-dim);
+    background:#161f24;
+  }
+  .hitbox-btn.active{
+    background: linear-gradient(90deg, rgba(57,255,136,0.15), rgba(57,255,136,0.03));
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: inset 0 0 12px rgba(57,255,136,0.08);
+  }
+  .hitbox-btn .dot{
+    width:6px;height:6px;border-radius:50%;
+    background: var(--text-dim);
+  }
+  .hitbox-btn.active .dot{
+    background: var(--accent);
+    box-shadow:0 0 6px var(--accent);
+  }
+
+  .toggle-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:8px 0;
+    font-size:12.5px;
+    color: var(--text-dim);
+  }
+  .switch{
+    width:36px;height:18px;
+    background:#1a2226;
+    border-radius:20px;
+    position:relative;
+    cursor:pointer;
+    border:1px solid var(--border);
+    flex-shrink:0;
+  }
+  .switch::after{
+    content:'';
+    position:absolute;
+    top:2px;left:2px;
+    width:12px;height:12px;
+    border-radius:50%;
+    background: var(--text-dim);
+    transition: all .18s ease;
+  }
+  .switch.on{
+    background: rgba(57,255,136,0.15);
+    border-color: var(--accent-dim);
+  }
+  .switch.on::after{
+    left:19px;
+    background: var(--accent);
+    box-shadow:0 0 6px var(--accent);
+  }
+
+  .slider-block{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .slider-top{
+    display:flex;
+    justify-content:space-between;
+    font-size:12.5px;
+    color: var(--text-dim);
+  }
+  .slider-top b{color:var(--accent);font-weight:600;}
+  input[type=range]{
+    -webkit-appearance:none;
+    width:100%;
+    height:4px;
+    border-radius:4px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent) var(--val,50%), #1a2226 var(--val,50%), #1a2226 100%);
+    outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:14px;height:14px;
+    border-radius:50%;
+    background: var(--accent);
+    box-shadow:0 0 8px var(--accent), 0 0 0 3px rgba(57,255,136,0.15);
+    cursor:pointer;
+    margin-top:0px;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:14px;height:14px;
+    border-radius:50%;
+    background: var(--accent);
+    box-shadow:0 0 8px var(--accent);
+    border:none;
+    cursor:pointer;
+  }
+
+  .viewport{
+    flex:1;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+      linear-gradient(rgba(57,255,136,0.03) 1px, transparent 1px) 0 0/100% 26px,
+      linear-gradient(90deg, rgba(57,255,136,0.03) 1px, transparent 1px) 0 0/26px 100%,
+      #070a0b;
+  }
+  .viewport::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background: radial-gradient(circle at 50% 40%, rgba(57,255,136,0.05), transparent 60%);
+    pointer-events:none;
+  }
+  .corner{
+    position:absolute;
+    width:20px;height:20px;
+    border-color: var(--accent-dim);
+    opacity:.6;
+  }
+  .corner.tl{top:14px;left:14px;border-top:2px solid;border-left:2px solid;}
+  .corner.tr{top:14px;right:14px;border-top:2px solid;border-right:2px solid;}
+  .corner.bl{bottom:14px;left:14px;border-bottom:2px solid;border-left:2px solid;}
+  .corner.br{bottom:14px;right:14px;border-bottom:2px solid;border-right:2px solid;}
+
+  .model-label{
+    position:absolute;
+    top:16px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:11px;
+    color:var(--text-dim);
+    letter-spacing:2px;
+    text-transform:uppercase;
+  }
+  .model-label b{color:var(--accent);}
+
+  .part{
+    fill:#20292f;
+    stroke:#33424a;
+    stroke-width:1.5;
+    transition: all .2s ease;
+  }
+  .part.active{
+    fill: rgba(57,255,136,0.35);
+    stroke: var(--accent);
+    stroke-width:2;
+    filter: drop-shadow(0 0 6px rgba(57,255,136,0.8));
+  }
+
+  .footer{
+    padding: 16px 22px;
+    border-top:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background: #0b0f11;
+  }
+  .footer .hint{
+    font-size:11.5px;
+    color: var(--text-dim);
+    letter-spacing:.5px;
+  }
+  .open-btn{
+    background: linear-gradient(180deg, #1b6b3d, #123f24);
+    border:1px solid var(--accent-dim);
+    color: var(--accent);
+    padding:12px 34px;
+    font-family:inherit;
+    font-weight:700;
+    letter-spacing:2px;
+    font-size:14px;
+    border-radius:6px;
+    cursor:pointer;
+    box-shadow: 0 0 18px rgba(57,255,136,0.15);
+    transition: all .15s ease;
+  }
+  .open-btn:hover{
+    box-shadow: 0 0 26px rgba(57,255,136,0.35);
+    transform: translateY(-1px);
+  }
+  .open-btn:active{
+    transform: translateY(0px);
+  }
+  .open-btn:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+    transform:none;
+  }
+
+  /* overlay */
+  .overlay{
+    position:fixed;
+    inset:0;
+    background: rgba(3,5,6,0.82);
+    backdrop-filter: blur(3px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:999;
+    opacity:0;
+    pointer-events:none;
+    transition: opacity .25s ease;
+  }
+  .overlay.show{
+    opacity:1;
+    pointer-events:all;
+  }
+  .progress-box{
+    width: 420px;
+    max-width: 88vw;
+    background: linear-gradient(180deg, #10161a, #0a0e10);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding: 26px 26px 22px;
+    box-shadow: 0 0 50px rgba(57,255,136,0.08), 0 20px 60px rgba(0,0,0,0.7);
+  }
+  .progress-box .pbox-title{
+    font-size:13px;
+    letter-spacing:2px;
+    color: var(--accent);
+    margin-bottom:14px;
+    text-align:center;
+    text-transform:uppercase;
+  }
+  .progress-track{
+    width:100%;
+    height:10px;
+    background:#161d21;
+    border-radius:6px;
+    overflow:hidden;
+    border:1px solid var(--border);
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+    box-shadow: 0 0 10px rgba(57,255,136,0.6);
+    transition: width .18s linear;
+  }
+  .progress-pct{
+    text-align:right;
+    font-size:12px;
+    color: var(--text-dim);
+    margin-top:8px;
+  }
+  .progress-step{
+    text-align:center;
+    font-size:12px;
+    color: var(--text-dim);
+    margin-top:14px;
+    min-height:16px;
+  }
+
+  .error-box{
+    display:none;
+    text-align:center;
+  }
+  .error-box.show{display:block;}
+  .error-box .icon{
+    font-size:34px;
+    color: var(--accent2);
+    margin-bottom:10px;
+    text-shadow:0 0 14px rgba(255,59,59,0.6);
+  }
+  .error-box .msg{
+    font-size:14px;
+    color:#ffb3b3;
+    line-height:1.5;
+    margin-bottom:18px;
+  }
+  .error-box .code{
+    font-size:11px;
+    color: var(--text-dim);
+    margin-bottom:18px;
+    letter-spacing:1px;
+  }
+  .retry-btn{
+    background: #1a1010;
+    border:1px solid #5a2323;
+    color: #ff8888;
+    padding:9px 26px;
+    font-family:inherit;
+    font-size:12.5px;
+    letter-spacing:1px;
+    border-radius:6px;
+    cursor:pointer;
+  }
+  .retry-btn:hover{
+    background:#231414;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <div class="title">MERIXTI AIMBOT <span>build 3.2.1 // private</span></div>
+    <div class="stats">
+      <div><span class="status-dot"></span><b>UNDETECTED</b></div>
+      <div>FPS: <b>241</b></div>
+      <div>PING: <b>11ms</b></div>
+    </div>
+  </header>
+
+  <div class="main">
+    <div class="sidebar">
+      <div>
+        <div class="section-label">Хитбокс</div>
+        <div class="hitbox-btns" id="hitboxBtns">
+          <button class="hitbox-btn active" data-part="head">Head <span class="dot"></span></button>
+          <button class="hitbox-btn" data-part="neck">Neck <span class="dot"></span></button>
+          <button class="hitbox-btn" data-part="torso">Torso <span class="dot"></span></button>
+          <button class="hitbox-btn" data-part="arms">Arms <span class="dot"></span></button>
+          <button class="hitbox-btn" data-part="legs">Legs <span class="dot"></span></button>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Настройки аимбота</div>
+        <div class="slider-block">
+          <div class="slider-top"><span>Радиус аимбота (FOV)</span><b id="radiusVal">55</b></div>
+          <input type="range" id="radiusSlider" min="5" max="100" value="55">
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Доп. модули</div>
+        <div class="toggle-row"><span>Silent Aim</span><div class="switch" data-t></div></div>
+        <div class="toggle-row"><span>Recoil Control</span><div class="switch on" data-t></div></div>
+        <div class="toggle-row"><span>Auto Wall</span><div class="switch" data-t></div></div>
+        <div class="toggle-row"><span>ESP Skeleton</span><div class="switch on" data-t></div></div>
+      </div>
+    </div>
+
+    <div class="viewport">
+      <div class="corner tl"></div>
+      <div class="corner tr"></div>
+      <div class="corner bl"></div>
+      <div class="corner br"></div>
+      <div class="model-label">Выбран хитбокс: <b id="partLabel">HEAD</b></div>
+
+      <svg width="220" height="420" viewBox="0 0 220 420">
+        <!-- fov circle -->
+        <circle id="fovCircle" cx="110" cy="70" r="55" fill="none" stroke="#39ff88" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.55"/>
+        <!-- legs -->
+        <rect class="part" data-part="legs" x="82" y="270" width="24" height="130" rx="6"/>
+        <rect class="part" data-part="legs" x="114" y="270" width="24" height="130" rx="6"/>
+        <!-- arms -->
+        <rect class="part" data-part="arms" x="42" y="140" width="24" height="120" rx="10" transform="rotate(6 54 200)"/>
+        <rect class="part" data-part="arms" x="154" y="140" width="24" height="120" rx="10" transform="rotate(-6 166 200)"/>
+        <!-- torso -->
+        <rect class="part" data-part="torso" x="70" y="130" width="80" height="140" rx="14"/>
+        <!-- neck -->
+        <rect class="part" data-part="neck" x="98" y="104" width="24" height="26" rx="4"/>
+        <!-- head -->
+        <circle class="part active" data-part="head" cx="110" cy="70" r="38"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="hint">Убедитесь, что игра запущена от имени администратора</div>
+    <button class="open-btn" id="openGameBtn">OPEN GAME</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="progress-box">
+    <div id="progressView">
+      <div class="pbox-title">Внедрение чита</div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-pct"><span id="progressPct">0</span>%</div>
+      <div class="progress-step" id="progressStep">Инициализация...</div>
+    </div>
+    <div class="error-box" id="errorBox">
+      <div class="icon">&#9888;</div>
+      <div class="msg">Не удалось обойти античит.<br>Приложение было установлено менее 12 часов назад.</div>
+      <div class="code">ERROR CODE: AC-0x004E12</div>
+      <button class="retry-btn" id="retryBtn">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Hitbox selection
+  const btns = document.querySelectorAll('.hitbox-btn');
+  const parts = document.querySelectorAll('.part');
+  const partLabel = document.getElementById('partLabel');
+  const fovCircle = document.getElementById('fovCircle');
+
+  const partCenters = {
+    head: {cx:110, cy:70},
+    neck: {cx:110, cy:117},
+    torso:{cx:110, cy:200},
+    arms: {cx:110, cy:200},
+    legs: {cx:110, cy:335}
+  };
+
+  function selectPart(part){
+    btns.forEach(b => b.classList.toggle('active', b.dataset.part === part));
+    parts.forEach(p => p.classList.toggle('active', p.dataset.part === part));
+    partLabel.textContent = part.toUpperCase();
+    const c = partCenters[part];
+    fovCircle.setAttribute('cx', c.cx);
+    fovCircle.setAttribute('cy', c.cy);
+  }
+
+  btns.forEach(b => b.addEventListener('click', () => selectPart(b.dataset.part)));
+
+  // Radius slider
+  const radiusSlider = document.getElementById('radiusSlider');
+  const radiusVal = document.getElementById('radiusVal');
+  function updateRadius(){
+    const v = radiusSlider.value;
+    radiusVal.textContent = v;
+    radiusSlider.style.setProperty('--val', v + '%');
+    fovCircle.setAttribute('r', 15 + (v/100)*80);
+  }
+  radiusSlider.addEventListener('input', updateRadius);
+  updateRadius();
+
+  // Toggle switches (decorative)
+  document.querySelectorAll('.switch').forEach(s=>{
+    s.addEventListener('click', ()=> s.classList.toggle('on'));
+  });
+
+  // Open Game -> progress -> error
+  const openBtn = document.getElementById('openGameBtn');
+  const overlay = document.getElementById('overlay');
+  const progressView = document.getElementById('progressView');
+  const errorBox = document.getElementById('errorBox');
+  const progressFill = document.getElementById('progressFill');
+  const progressPct = document.getElementById('progressPct');
+  const progressStep = document.getElementById('progressStep');
+  const retryBtn = document.getElementById('retryBtn');
+
+  const steps = [
+    'Поиск процесса игры...',
+    'Подключение к серверу...',
+    'Обход защиты памяти...',
+    'Внедрение модуля...',
+    'Проверка сигнатур...',
+    'Финальная проверка...'
+  ];
+
+  function resetOverlay(){
+    progressFill.style.width = '0%';
+    progressPct.textContent = '0';
+    progressStep.textContent = 'Инициализация...';
+    progressView.style.display = 'block';
+    errorBox.classList.remove('show');
+    openBtn.disabled = false;
+  }
+
+  openBtn.addEventListener('click', () => {
+    resetOverlay();
+    overlay.classList.add('show');
+    openBtn.disabled = true;
+
+    let pct = 0;
+    let stepIndex = 0;
+    progressStep.textContent = steps[0];
+
+    const interval = setInterval(() => {
+      pct += Math.random() * 9 + 3;
+      if (pct >= 100) {
+        pct = 100;
+        clearInterval(interval);
+        progressFill.style.width = '100%';
+        progressPct.textContent = '100';
+        progressStep.textContent = 'Проверка завершена';
+        setTimeout(() => {
+          progressView.style.display = 'none';
+          errorBox.classList.add('show');
+        }, 700);
+        return;
+      }
+      progressFill.style.width = pct + '%';
+      progressPct.textContent = Math.floor(pct);
+      const newStep = Math.min(steps.length - 1, Math.floor((pct/100) * steps.length));
+      if (newStep !== stepIndex){
+        stepIndex = newStep;
+        progressStep.textContent = steps[stepIndex];
+      }
+    }, 260);
+  });
+
+  retryBtn.addEventListener('click', () => {
+    overlay.classList.remove('show');
+    openBtn.disabled = false;
+  });
+</script>
+
+</body>
+</html>
